@@ -13,6 +13,7 @@ binDir        = "bin"
 # Dependencies
 
 requires "nim >= 1.6.0"
+requires "jester"
 
 
 # Tasks
