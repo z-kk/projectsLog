@@ -1,6 +1,6 @@
 import
   os, json,
-  projectsLogpkg / [httpServer, consts]
+  projectsLogpkg / [httpServer, consts, dbtables]
 
 proc getPort(): int =
   ## サーバを起動するポートを取得
@@ -30,5 +30,6 @@ when isMainModule:
   if not ConfFile.fileExists:
     makeConfFile()
     quit()
+  openDb().createTables
   let port = getPort()
   startHttpServer(port)
