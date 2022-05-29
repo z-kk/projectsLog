@@ -14,6 +14,7 @@ binDir        = "bin"
 
 requires "nim >= 1.6.0"
 requires "jester"
+requires "htmlgenerator"
 
 
 # Tasks
@@ -25,5 +26,6 @@ task r, "build and run":
 import os
 task ex, "run without build":
   withDir binDir:
+    exec "if [ ! -e public ]; then ln -s ../src/html public; fi"
     for b in bin:
       exec "." / b

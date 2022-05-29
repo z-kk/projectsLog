@@ -1,9 +1,10 @@
 import
-  jester
+  jester,
+  makeHtml
 
 router rt:
   get "/":
-    resp "hello world"
+    resp makeMainPage()
 
 proc startHttpServer*(port = 0) =
   var jest =

@@ -22,6 +22,9 @@ proc makeConfFile() =
         "code": "projectCode",
       },
     },
+    "categories": [
+      "実装", "評価", "書類", "会議", "検討", "その他"
+    ],
   }
   ConfFile.writeFile(conf.pretty)
   echo "設定ファイル[conf.json]を記入してください"
