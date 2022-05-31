@@ -21,26 +21,31 @@ proc makeInputTable*(): string =
   let idx = table.tbody.rows.len
 
   var select: hselect
-  select.name = "proj_" & $idx
+  select.class = @["proj"]
+  select.name = idx.projStr
   for key, _ in conf["projects"]:
     select.add hoption(content: key)
   row.add htd(content: select.toHtml)
 
-  select.name = "cat_" & $idx
+  select.class = @["cat"]
+  select.name = idx.catStr
   select.options = @[]
   for cat in conf["categories"]:
     select.add hoption(content: cat.getStr)
   row.add htd(content: select.toHtml)
 
   var ipt: hinput
-  ipt.name = "content_" & $idx
+  ipt.class = @["content"]
+  ipt.name = idx.contentStr
   row.add htd(content: ipt.toHtml)
 
   ipt.`type` = tpTime
-  ipt.name = "from_" & $idx
+  ipt.class = @["fromTime"]
+  ipt.name = idx.fromStr
   row.add htd(content: ipt.toHtml)
 
-  ipt.name = "to_" & $idx
+  ipt.class = @["toTime"]
+  ipt.name = idx.toStr
   row.add htd(content: ipt.toHtml)
 
   table.tbody.add row
@@ -81,6 +86,7 @@ proc makeMainPage*(): string =
 
   lbl.content = "対象日: "
   ipt.`type` = tpDate
+  ipt.id = "day"
   ipt.name = "day"
   ipt.value = now().format("yyyy-MM-dd")
   frm.add lbl.toHtml
@@ -108,5 +114,6 @@ proc makeMainPage*(): string =
     js: seq[hscript]
   css.add newLink("/popup.css")
   js.add newScript("/popup.js")
+  js.add newScript("/main.js")
 
   return makePage(body.toHtml, css, js)
