@@ -1,3 +1,34 @@
+function calcProjectsLog(from, to) {
+}
+
+function updateProjectsLog() {
+    let btn = select('#okbtn');
+    btn.disabled = true;
+
+    let fd = new FormData(select('form'));
+    fetch("/api/update", {
+        method: 'POST',
+        body: fd,
+    }).then(response => {
+        if (!response.ok) {
+            hidePopup();
+            throw new Error("response error");
+        }
+        return response.json();
+    }).then(data => {
+        if (data["result"]) {
+            let day = select("#day").value;
+            calcProjectsLog(day, day);
+        } else {
+            alert("登録に失敗しました\n" + data["exception"]);
+        }
+    }).catch(error => {
+        alert(error);
+    }).finally(_ => {
+        btn.disabled = false;
+    });
+}
+
 function addRow(evt) {
     let ipt = evt.target;
     let val = ipt.value;
@@ -28,4 +59,6 @@ window.addEventListener('load', function() {
     let tb = select('tbody');
     let row = tb.children[tb.children.length - 1];
     row.querySelector('.toTime').addEventListener('blur', addRow);
+
+    select('#okbtn').addEventListener('click', updateProjectsLog);
 });
