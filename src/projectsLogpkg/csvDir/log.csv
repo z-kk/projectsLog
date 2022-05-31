@@ -1,0 +1,8 @@
+name,comment,data_type,default_val,not_null,is_primary
+id,log id,INTEGER,,1,1
+project_id,project id,INTEGER,,1,
+project_code,project code,TEXT,,,
+day,,DATETIME,'9999-12-31',1,
+from_time,,DATETIME,,1,
+to_time,,DATETIME,,1,
+updated_at,updated date time,DATETIME,'9999-12-31',1,
