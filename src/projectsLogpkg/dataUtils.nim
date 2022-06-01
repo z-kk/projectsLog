@@ -42,7 +42,7 @@ proc getLog*(fromDay, toDay: DateTime): seq[projInfo] =
     db = openDb()
     conf = ConfFile.parseFile
     res = db.selectLogTable("day >= '$1' AND day <= '$2'" %
-      [fromDay.format(DateFormat), toDay.format(DateFormat)])
+      [fromDay.format(DateFormat), (toDay + 1.days).format(DateFormat)])
   for row in res:
     var info: projInfo
     for key, node in conf["projects"]:

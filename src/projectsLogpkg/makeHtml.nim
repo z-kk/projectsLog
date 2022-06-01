@@ -51,7 +51,7 @@ proc makeInputRow(info: projInfo, idx: int): htr =
 proc makeInputTable*(day: DateTime): string =
   ## 入力欄テーブル作成
   let
-    logList = getLog(day, day + 1.days)
+    logList = getLog(day, day)
   var
     table: htable
     row: htr

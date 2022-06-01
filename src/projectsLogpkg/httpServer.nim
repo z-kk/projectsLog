@@ -31,6 +31,9 @@ router rt:
       idx.inc
 
     resp infoList.updateLog
+  post "/api/getinputtable":
+    let data = request.formData
+    resp data["day"].body.parse(DateFormat).makeInputTable
 
 proc startHttpServer*(port = 0) =
   var jest =

@@ -60,5 +60,27 @@ window.addEventListener('load', function() {
     let row = tb.children[tb.children.length - 1];
     row.querySelector('.toTime').addEventListener('blur', addRow);
 
+    select('#day').addEventListener('change', function(e) {
+        let day = e.target.value;
+        if (day == "") {
+            return;
+        }
+        var fd = new FormData();
+        fd.append("day", day);
+        fetch("/api/getinputtable", {
+            method: 'POST',
+            body: fd,
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error("response error");
+            }
+            return response.text();
+        }).then(txt => {
+            select('.table').innerHTML = txt;
+        }).catch(error => {
+            alert(error);
+        });
+    });
+
     select('#okbtn').addEventListener('click', updateProjectsLog);
 });
