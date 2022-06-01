@@ -1,53 +1,73 @@
 import
   std / [strutils, sequtils, times, json],
   htmlgenerator,
-  consts
+  dataUtils, consts
 
-proc makeInputTable*(): string =
+proc makeInputRow(info: projInfo, idx: int): htr =
+  ## 入力欄行作成
+  let
+    conf = ConfFile.parseFile
+  var
+    select: hselect
+    ipt: hinput
+
+  select.class = @["proj"]
+  select.name = idx.projStr
+  for key, _ in conf["projects"]:
+    var option = hoption(content: key)
+    if key == info.name:
+      option.selected = true
+    select.add option
+  result.add htd(content: select.toHtml)
+
+  select.class = @["cat"]
+  select.name = idx.catStr
+  select.options = @[]
+  for cat in conf["categories"]:
+    var option = hoption(content: cat.getStr)
+    if cat.getStr == info.category:
+      option.selected = true
+    select.add option
+  result.add htd(content: select.toHtml)
+
+  ipt.class = @["content"]
+  ipt.name = idx.contentStr
+  ipt.value = info.content
+  result.add htd(content: ipt.toHtml)
+
+  ipt.`type` = tpTime
+  ipt.class = @["fromTime"]
+  ipt.name = idx.fromStr
+  if info.fromTime != DateTime():
+    ipt.value = info.fromTime.format("HH:mm")
+  result.add htd(content: ipt.toHtml)
+
+  ipt.class = @["toTime"]
+  ipt.name = idx.toStr
+  if info.toTime != DateTime():
+    ipt.value = info.toTime.format("HH:mm")
+  result.add htd(content: ipt.toHtml)
+
+proc makeInputTable*(day: DateTime): string =
   ## 入力欄テーブル作成
+  let
+    logList = getLog(day, day + 1.days)
   var
     table: htable
     row: htr
 
   let titles = @["Proj.", "分類", "内容", "開始", "終了"]
   for title in titles:
-    var th: hth
-    th.content = title
-    row.add th
+    row.add hth(content: title)
   table.thead.add row
 
-  let conf = ConfFile.parseFile
+  var idx: int
+  for log in logList:
+    row = log.makeInputRow(idx)
+    table.tbody.add row
+    idx.inc
 
-  let idx = table.tbody.rows.len
-
-  var select: hselect
-  select.class = @["proj"]
-  select.name = idx.projStr
-  for key, _ in conf["projects"]:
-    select.add hoption(content: key)
-  row.add htd(content: select.toHtml)
-
-  select.class = @["cat"]
-  select.name = idx.catStr
-  select.options = @[]
-  for cat in conf["categories"]:
-    select.add hoption(content: cat.getStr)
-  row.add htd(content: select.toHtml)
-
-  var ipt: hinput
-  ipt.class = @["content"]
-  ipt.name = idx.contentStr
-  row.add htd(content: ipt.toHtml)
-
-  ipt.`type` = tpTime
-  ipt.class = @["fromTime"]
-  ipt.name = idx.fromStr
-  row.add htd(content: ipt.toHtml)
-
-  ipt.class = @["toTime"]
-  ipt.name = idx.toStr
-  row.add htd(content: ipt.toHtml)
-
+  row = projInfo().makeInputRow(idx)
   table.tbody.add row
 
   return table.toHtml
@@ -78,6 +98,8 @@ proc makePage(body = "", css: seq[hlink] = @[], js: seq[hscript] = @[], title = 
 
 proc makeMainPage*(): string =
   ## メインページ作成
+  let
+    today = now()
   var
     body: hdiv
     frm: hform
@@ -88,7 +110,7 @@ proc makeMainPage*(): string =
   ipt.`type` = tpDate
   ipt.id = "day"
   ipt.name = "day"
-  ipt.value = now().format("yyyy-MM-dd")
+  ipt.value = today.format("yyyy-MM-dd")
   frm.add lbl.toHtml
   frm.add ipt.toHtml
   frm.add Br
@@ -96,7 +118,7 @@ proc makeMainPage*(): string =
 
   var d: hdiv
   d.class.add "table"
-  d.add makeInputTable()
+  d.add today.makeInputTable
   frm.add d.toHtml
 
   d = hdiv()
