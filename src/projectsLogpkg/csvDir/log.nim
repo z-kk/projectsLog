@@ -4,13 +4,15 @@ import
   db_sqlite
 type
   LogCol* {.pure.} = enum
-    id, project_id, project_code, day, from_time, to_time, updated_at
+    id, project_id, project_code, day, category, content, from_time, to_time, updated_at
   LogTable* = object
     primKey: int
     id*: int
     project_id*: int
     project_code*: string
     day*: DateTime
+    category*: string
+    content*: string
     from_time*: DateTime
     to_time*: DateTime
     updated_at*: DateTime
@@ -32,6 +34,14 @@ proc setDataLogTable*(data: var LogTable, colName, value: string) =
     try:
       data.day = value.parse("yyyy-MM-dd HH:mm:ss")
     except: discard
+  of "category":
+    try:
+      data.category = value
+    except: discard
+  of "content":
+    try:
+      data.content = value
+    except: discard
   of "from_time":
     try:
       data.from_time = value.parse("yyyy-MM-dd HH:mm:ss")
@@ -50,6 +60,8 @@ proc createLogTable*(db: DbConn) =
     project_id INTEGER not null,
     project_code TEXT,
     day DATETIME default '9999-12-31' not null,
+    category TEXT not null,
+    content TEXT,
     from_time DATETIME not null,
     to_time DATETIME not null,
     updated_at DATETIME default '9999-12-31' not null
@@ -59,11 +71,11 @@ proc insertLogTable*(db: DbConn, rowData: LogTable) =
   var sql = "insert into log("
   if rowData.id > 0:
     sql &= "id,"
-  sql &= """project_id,project_code,day,from_time,to_time,updated_at
+  sql &= """project_id,project_code,day,category,content,from_time,to_time,updated_at
     ) values ("""
   if rowData.id > 0:
     sql &= &"{rowData.id},"
-  sql &= &"{rowData.project_id},'{rowData.project_code}',datetime('" & rowData.day.format("yyyy-MM-dd HH:mm:ss") & &"'),datetime('" & rowData.from_time.format("yyyy-MM-dd HH:mm:ss") & &"'),datetime('" & rowData.to_time.format("yyyy-MM-dd HH:mm:ss") & &"'),datetime('" & rowData.updated_at.format("yyyy-MM-dd HH:mm:ss") & &"')"
+  sql &= &"{rowData.project_id},'{rowData.project_code}',datetime('" & rowData.day.format("yyyy-MM-dd HH:mm:ss") & &"'),'{rowData.category}','{rowData.content}',datetime('" & rowData.from_time.format("yyyy-MM-dd HH:mm:ss") & &"'),datetime('" & rowData.to_time.format("yyyy-MM-dd HH:mm:ss") & &"'),datetime('" & rowData.updated_at.format("yyyy-MM-dd HH:mm:ss") & &"')"
   sql &= ")"
   db.exec(sql.sql)
 proc insertLogTable*(db: DbConn, rowDataSeq: seq[LogTable]) =
@@ -83,6 +95,8 @@ proc selectLogTable*(db: DbConn, whereStr = "", orderStr = ""): seq[LogTable] =
     res.setDataLogTable("project_id", row[LogCol.project_id.ord])
     res.setDataLogTable("project_code", row[LogCol.project_code.ord])
     res.setDataLogTable("day", row[LogCol.day.ord])
+    res.setDataLogTable("category", row[LogCol.category.ord])
+    res.setDataLogTable("content", row[LogCol.content.ord])
     res.setDataLogTable("from_time", row[LogCol.from_time.ord])
     res.setDataLogTable("to_time", row[LogCol.to_time.ord])
     res.setDataLogTable("updated_at", row[LogCol.updated_at.ord])
@@ -94,6 +108,8 @@ proc updateLogTable*(db: DbConn, rowData: LogTable) =
   sql &= &",project_code = '{rowData.project_code}'"
   if rowData.day != DateTime():
     sql &= &",day = datetime('" & rowData.day.format("yyyy-MM-dd HH:mm:ss") & &"')"
+  sql &= &",category = '{rowData.category}'"
+  sql &= &",content = '{rowData.content}'"
   if rowData.from_time != DateTime():
     sql &= &",from_time = datetime('" & rowData.from_time.format("yyyy-MM-dd HH:mm:ss") & &"')"
   if rowData.to_time != DateTime():
@@ -111,7 +127,7 @@ proc dumpLogTable*(db: DbConn, dirName = "csv") =
   let
     fileName = dirName / "log.csv"
     f = fileName.open(fmWrite)
-  f.writeLine("id,project_id,project_code,day,from_time,to_time,updated_at")
+  f.writeLine("id,project_id,project_code,day,category,content,from_time,to_time,updated_at")
   for row in db.selectLogTable:
     f.write('"', $row.id, '"', ',')
     f.write('"', $row.project_id, '"', ',')
@@ -120,6 +136,8 @@ proc dumpLogTable*(db: DbConn, dirName = "csv") =
       f.write(',')
     else:
       f.write(row.day.format("yyyy-MM-dd HH:mm:ss"), ',')
+    f.write('"', $row.category, '"', ',')
+    f.write('"', $row.content, '"', ',')
     if row.from_time == DateTime():
       f.write(',')
     else:
@@ -146,6 +164,8 @@ proc insertCsvLogTable*(db: DbConn, fileName: string) =
     data.setDataLogTable("project_id", parser.rowEntry("project_id"))
     data.setDataLogTable("project_code", parser.rowEntry("project_code"))
     data.setDataLogTable("day", parser.rowEntry("day"))
+    data.setDataLogTable("category", parser.rowEntry("category"))
+    data.setDataLogTable("content", parser.rowEntry("content"))
     data.setDataLogTable("from_time", parser.rowEntry("from_time"))
     data.setDataLogTable("to_time", parser.rowEntry("to_time"))
     data.setDataLogTable("updated_at", parser.rowEntry("updated_at"))
