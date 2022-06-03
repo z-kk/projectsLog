@@ -46,7 +46,7 @@ proc getLog*(fromDay, toDay: DateTime): seq[projInfo] =
   for row in res:
     var info: projInfo
     for key, node in conf["projects"]:
-      if node["id"].getInt != row.id:
+      if node["id"].getInt != row.project_id:
         continue
       info.name = key
       break
