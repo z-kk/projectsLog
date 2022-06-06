@@ -76,7 +76,10 @@ window.addEventListener('load', function() {
             }
             return response.text();
         }).then(txt => {
-            select('.table').innerHTML = txt;
+            select('#inputtable').innerHTML = txt;
+            let tb = select('tbody');
+            let row = tb.children[tb.children.length - 1];
+            row.querySelector('.toTime').addEventListener('blur', addRow);
         }).catch(error => {
             alert(error);
         });
