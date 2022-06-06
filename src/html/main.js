@@ -108,4 +108,5 @@ window.addEventListener('load', function() {
     });
 
     select('#okbtn').addEventListener('click', updateProjectsLog);
+    select('#updatebtn').addEventListener('click', calcProjectsLog);
 });
