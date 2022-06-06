@@ -1,5 +1,5 @@
 import
-  std / [strutils, times],
+  std / [strutils, times, json],
   jester,
   makeHtml, dataUtils, consts
 
@@ -30,7 +30,10 @@ router rt:
       infoList.add info
       idx.inc
 
-    resp infoList.updateLog
+    var res = infoList.updateLog
+    if res["result"].getBool:
+      res["body"] = %*data["day"].body.parse(DateFormat).makeInputTable
+    resp res
   post "/api/getinputtable":
     let data = request.formData
     resp data["day"].body.parse(DateFormat).makeInputTable

@@ -17,6 +17,7 @@ function updateProjectsLog() {
         return response.json();
     }).then(data => {
         if (data["result"]) {
+            select("#inputtable").innerHTML = data["body"];
             let day = select("#day").value;
             calcProjectsLog(day, day);
         } else {
