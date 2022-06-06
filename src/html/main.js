@@ -1,3 +1,9 @@
+function setBlurEvent() {
+    let tb = select('tbody');
+    let row = tb.children[tb.children.length - 1];
+    row.querySelector('.toTime').addEventListener('blur', addRow);
+}
+
 function calcProjectsLog() {
     let fd = new FormData(select('form'));
     fetch("/api/getcalctable", {
@@ -34,6 +40,7 @@ function updateProjectsLog() {
     }).then(data => {
         if (data["result"]) {
             select("#inputtable").innerHTML = data["body"];
+            setBlurEvent();
             let day = select("#day").value;
             select("#from_day").value = day;
             select("#to_day").value = day;
@@ -75,9 +82,7 @@ function addRow(evt) {
 }
 
 window.addEventListener('load', function() {
-    let tb = select('tbody');
-    let row = tb.children[tb.children.length - 1];
-    row.querySelector('.toTime').addEventListener('blur', addRow);
+    setBlurEvent();
 
     select('#day').addEventListener('change', function(e) {
         let day = e.target.value;
@@ -96,9 +101,7 @@ window.addEventListener('load', function() {
             return response.text();
         }).then(txt => {
             select('#inputtable').innerHTML = txt;
-            let tb = select('tbody');
-            let row = tb.children[tb.children.length - 1];
-            row.querySelector('.toTime').addEventListener('blur', addRow);
+            setBlurEvent();
         }).catch(error => {
             alert(error);
         });
