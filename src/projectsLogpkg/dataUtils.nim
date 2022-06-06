@@ -18,8 +18,8 @@ proc updateLog*(infoList: seq[projInfo]): JsonNode =
   let
     db = openDb()
     conf = ConfFile.parseFile
-  if db.selectLogTable("day = '$1'" % [infoList[0].fromTime.format(DateFormat)]).len > 0:
-    db.exec("delete from log where day = ?".sql, infoList[0].fromTime.format(DateFormat))
+  if db.selectLogTable("day = '$1 00:00:00'" % [infoList[0].fromTime.format(DateFormat)]).len > 0:
+    db.exec("delete from log where day = ?".sql, "$1 00:00:00" % [infoList[0].fromTime.format(DateFormat)])
   for info in infoList:
     let proj = conf["projects"][info.name]
     var log: LogTable
