@@ -1,4 +1,20 @@
-function calcProjectsLog(from, to) {
+function calcProjectsLog() {
+    let fd = new FormData(select('form'));
+    fetch("/api/getcalctable", {
+        method: 'POST',
+        body: fd,
+    }).then(response => {
+        if (!response.ok) {
+            hidePopup();
+            throw new Error("response error");
+        }
+        return response.text();
+    }).then(txt => {
+        select('#calctable').innerHTML = txt;
+        showPopup();
+    }).catch(error => {
+        alert(error);
+    });
 }
 
 function updateProjectsLog() {
@@ -19,7 +35,9 @@ function updateProjectsLog() {
         if (data["result"]) {
             select("#inputtable").innerHTML = data["body"];
             let day = select("#day").value;
-            calcProjectsLog(day, day);
+            select("#from_day").value = day;
+            select("#to_day").value = day;
+            calcProjectsLog();
         } else {
             alert("登録に失敗しました\n" + data["exception"]);
         }

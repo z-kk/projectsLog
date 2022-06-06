@@ -37,6 +37,14 @@ router rt:
   post "/api/getinputtable":
     let data = request.formData
     resp data["day"].body.parse(DateFormat).makeInputTable
+  post "/api/getcalctable":
+    let data = request.formData
+    var f, t = now()
+    if "from_day" in data:
+      f = data["from_day"].body.parse(DateFormat)
+    if "to_day" in data:
+      t = data["to_day"].body.parse(DateFormat)
+    resp makeCalcTable(f, t)
 
 proc startHttpServer*(port = 0) =
   var jest =
