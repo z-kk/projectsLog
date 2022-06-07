@@ -4,6 +4,40 @@ function setBlurEvent() {
     row.querySelector('.toTime').addEventListener('blur', addRow);
 }
 
+function setFocusEvent() {
+    let list = document.createElement("datalist");
+    list.id = "dlist";
+    select('#inputtable').append(list);
+    for (let ipt of selectAll('.content')) {
+        ipt.setAttribute("list", list.id);
+        ipt.addEventListener('focus', function() {
+            while (list.children.length > 0) {
+                list.children[0].remove();
+            }
+            let fd = new FormData();
+            fd.append("proj", ipt.parentElement.parentElement.querySelector(".proj").value);
+            fd.append("category", ipt.parentElement.parentElement.querySelector(".cat").value);
+            fetch("/api/getcontents", {
+                method: 'POST',
+                body: fd,
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error("response error");
+                }
+                return response.text();
+            }).then(txt => {
+                for (let cont of txt.split("\n")) {
+                    let opt = document.createElement("option");
+                    opt.value = cont;
+                    list.append(opt);
+                }
+            }).catch(error => {
+                alert(error);
+            });
+        });
+    }
+}
+
 function calcProjectsLog() {
     let fd = new FormData(select('form'));
     fetch("/api/getcalctable", {
@@ -41,6 +75,7 @@ function updateProjectsLog() {
         if (data["result"]) {
             select("#inputtable").innerHTML = data["body"];
             setBlurEvent();
+            setFocusEvent();
             let day = select("#day").value;
             select("#from_day").value = day;
             select("#to_day").value = day;
@@ -83,6 +118,7 @@ function addRow(evt) {
 
 window.addEventListener('load', function() {
     setBlurEvent();
+    setFocusEvent();
 
     select('#day').addEventListener('change', function(e) {
         let day = e.target.value;
@@ -102,6 +138,7 @@ window.addEventListener('load', function() {
         }).then(txt => {
             select('#inputtable').innerHTML = txt;
             setBlurEvent();
+            setFocusEvent();
         }).catch(error => {
             alert(error);
         });
