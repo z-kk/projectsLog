@@ -79,7 +79,9 @@ proc makeCalcTable*(fromDay, toDay: DateTime): string =
     conf = ConfFile.parseFile
     ctg = conf["categories"].mapIt(it.getStr)
 
-  var calc: Table[string, Table[string, Table[string, Duration]]]
+  var
+    calc: Table[string, Table[string, Table[string, Duration]]]
+    sum: Duration
 
   for log in logList:
     if not calc.hasKey(log.name):
@@ -88,7 +90,20 @@ proc makeCalcTable*(fromDay, toDay: DateTime): string =
       calc[log.name][log.category] = {log.content: DurationZero}.toTable
     if not calc[log.name][log.category].hasKey(log.content):
       calc[log.name][log.category][log.content] = DurationZero
-    calc[log.name][log.category][log.content] += log.toTime - log.fromTime
+
+    var dur = log.toTime - log.fromTime
+    for node in conf["restTime"]:
+      let
+        ftime = parse(log.fromTime.format(DateFormat) & " " & node["from"].getStr, DateTimeFormat)
+        ttime = parse(log.fromTime.format(DateFormat) & " " & node["to"].getStr, DateTimeFormat)
+      if ftime < log.toTime and log.fromTime < ttime:
+        if ftime < log.fromTime:
+          dur -= ttime - log.fromTime
+        elif log.toTime < ttime:
+          dur -= log.toTime - ftime
+        else:
+          dur -= ttime - ftime
+    calc[log.name][log.category][log.content] += dur
 
   var
     table: htable
@@ -104,6 +119,7 @@ proc makeCalcTable*(fromDay, toDay: DateTime): string =
       for cat in ctg:
         if cat in calc[key]:
           for content, dur in calc[key][cat]:
+            sum += dur
             row.add htd(content: key)
             row.add htd(content: cat)
             row.add htd(content: "$1:$2" %
@@ -111,6 +127,15 @@ proc makeCalcTable*(fromDay, toDay: DateTime): string =
             row.add htd(content: node["code"].getStr)
             row.add htd(content: content)
             table.tbody.add row
+
+  block sumRow:
+    row.add htd()
+    row.add htd(content: "合計")
+    row.add htd(content: "$1:$2" %
+      [sum.toParts[Hours].int.intToStr(2), sum.toParts[Minutes].int.intToStr(2)])
+    row.add htd()
+    row.add htd()
+    table.tbody.add row
 
   return table.toHtml
 

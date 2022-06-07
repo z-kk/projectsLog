@@ -55,3 +55,28 @@ proc getLog*(fromDay, toDay: DateTime): seq[projInfo] =
     info.fromTime = row.from_time
     info.toTime = row.to_time
     result.add info
+
+proc getContents*(name, category: string, maxLen = 10): seq[string] =
+  ## 既存の登録内容を取得
+  let
+    db = openDb()
+    conf = ConfFile.parseFile
+    whereStrFmt = """
+      project_id = $1
+      AND category = '$2'
+      AND day > '$3'
+    """.dedent % [$conf["projects"][name]["id"].getInt, category, "$1"]
+    orderStr = "id DESC"
+  var
+    day = now() - 1.months
+    whereStr = whereStrFmt % [day.format(DateFormat)]
+    logList = db.selectLogTable(whereStr, orderStr)
+
+  while result.len < maxLen and day > now() - 1.years:
+    for log in logList:
+      if not result.contains(log.content):
+        result.add log.content
+
+    day -= 1.months
+    whereStr = whereStrFmt % [day.format(DateFormat)]
+    logList = db.selectLogTable(whereStr, orderStr)

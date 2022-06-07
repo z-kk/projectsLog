@@ -45,6 +45,14 @@ router rt:
     if "to_day" in data:
       t = data["to_day"].body.parse(DateFormat)
     resp makeCalcTable(f, t)
+  post "/api/getcontents":
+    let data = request.formData
+    var name, cat: string
+    if "proj" in data:
+      name = data["proj"].body
+    if "category" in data:
+      cat = data["category"].body
+    resp getContents(name, cat).join("\n")
 
 proc startHttpServer*(port = 0) =
   var jest =
