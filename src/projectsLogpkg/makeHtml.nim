@@ -90,7 +90,20 @@ proc makeCalcTable*(fromDay, toDay: DateTime): string =
       calc[log.name][log.category] = {log.content: DurationZero}.toTable
     if not calc[log.name][log.category].hasKey(log.content):
       calc[log.name][log.category][log.content] = DurationZero
-    calc[log.name][log.category][log.content] += log.toTime - log.fromTime
+
+    var dur = log.toTime - log.fromTime
+    for node in conf["restTime"]:
+      let
+        ftime = parse(log.fromTime.format(DateFormat) & " " & node["from"].getStr, DateTimeFormat)
+        ttime = parse(log.fromTime.format(DateFormat) & " " & node["to"].getStr, DateTimeFormat)
+      if ftime < log.toTime and log.fromTime < ttime:
+        if ftime < log.fromTime:
+          dur -= ttime - log.fromTime
+        elif log.toTime < ttime:
+          dur -= log.toTime - ftime
+        else:
+          dur -= ttime - ftime
+    calc[log.name][log.category][log.content] += dur
 
   var
     table: htable
