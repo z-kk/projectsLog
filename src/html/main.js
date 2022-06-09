@@ -10,31 +10,7 @@ function setFocusEvent() {
     select('#inputtable').append(list);
     for (let ipt of selectAll('.content')) {
         ipt.setAttribute("list", list.id);
-        ipt.addEventListener('focus', function() {
-            while (list.children.length > 0) {
-                list.children[0].remove();
-            }
-            let fd = new FormData();
-            fd.append("proj", ipt.parentElement.parentElement.querySelector(".proj").value);
-            fd.append("category", ipt.parentElement.parentElement.querySelector(".cat").value);
-            fetch("/api/getcontents", {
-                method: 'POST',
-                body: fd,
-            }).then(response => {
-                if (!response.ok) {
-                    throw new Error("response error");
-                }
-                return response.text();
-            }).then(txt => {
-                for (let cont of txt.split("\n")) {
-                    let opt = document.createElement("option");
-                    opt.value = cont;
-                    list.append(opt);
-                }
-            }).catch(error => {
-                alert(error);
-            });
-        });
+        ipt.addEventListener('focus', updateDataList);
     }
 }
 
@@ -107,6 +83,7 @@ function addRow(evt) {
         r.querySelector('.proj').name = "proj_" + idx;
         r.querySelector('.cat').name = "cat_" + idx;
         r.querySelector('.content').name = "content_" + idx;
+        r.querySelector('.content').addEventListener('focus', updateDataList);
         r.querySelector('.fromTime').name = "from_" + idx;
         r.querySelector('.toTime').name = "to_" + idx;
         r.querySelector('.toTime').addEventListener('blur', addRow);
@@ -114,6 +91,34 @@ function addRow(evt) {
         r.querySelector('.proj').focus();
         ipt.removeEventListener('blur', addRow);
     }
+}
+
+function updateDataList(evt) {
+    let list = select('#dlist');
+    while (list.children.length > 0) {
+        list.children[0].remove();
+    }
+    let row = evt.target.parentElement.parentElement;
+    let fd = new FormData();
+    fd.append("proj", row.querySelector(".proj").value);
+    fd.append("category", row.querySelector(".cat").value);
+    fetch("/api/getcontents", {
+        method: 'POST',
+        body: fd,
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error("response error");
+        }
+        return response.text();
+    }).then(txt => {
+        for (let cont of txt.split("\n")) {
+            let opt = document.createElement("option");
+            opt.value = cont;
+            list.append(opt);
+        }
+    }).catch(error => {
+        alert(error);
+    });
 }
 
 window.addEventListener('load', function() {
