@@ -3,6 +3,8 @@ const
   DateFormat* = "yyyy-MM-dd"
   DateTimeFormat* = "yyyy-MM-dd HH:mm"
 
+  GanttFile* = "gantt.mmd"
+
 type
   tablePref* = enum
     proj, cat, content, `from`, to

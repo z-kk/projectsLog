@@ -1,5 +1,5 @@
 import
-  std / [strutils, sequtils, times, tables, json],
+  std / [os, strutils, sequtils, times, tables, json],
   htmlgenerator,
   dataUtils, consts
 
@@ -219,11 +219,24 @@ proc makeMainPage*(): string =
   body.add Br
   body.add hbutton(type: tpButton, id: "okbtn", content: "OK").toHtml
 
+  if GanttFile.fileExists:
+    body.add Br
+    d = hdiv()
+    d.id = "mermaid"
+    d.class.add "mermaid"
+    for line in GanttFile.lines:
+      d.add line
+    body.add d.toHtml
+    body.add hbutton(type: tpButton, id: "mmdbtn", content: "更新").toHtml
+
   var
     css: seq[hlink]
     js: seq[hscript]
   css.add newLink("/popup.css")
   js.add newScript("/popup.js")
   js.add newScript("/main.js")
+
+  js.add newScript("https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js")
+  js.add newScript("/mermaid.js")
 
   return makePage(body.toHtml, css, js)
