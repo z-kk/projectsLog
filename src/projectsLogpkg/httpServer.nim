@@ -1,11 +1,16 @@
 import
-  std / [strutils, times, json],
+  std / [os, strutils, times, json],
   jester,
   makeHtml, dataUtils, consts
 
 router rt:
   get "/":
     resp makeMainPage()
+  get "/api/mermaid":
+    var res = ""
+    if GanttFile.fileExists:
+      res = GanttFile.readFile
+    resp res
   post "/api/update":
     let data = request.formData
     var
