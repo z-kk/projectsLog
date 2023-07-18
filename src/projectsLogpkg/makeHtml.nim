@@ -123,7 +123,7 @@ proc makeCalcTable*(fromDay, toDay: DateTime): string =
             row.add htd(content: key)
             row.add htd(content: cat)
             row.add htd(content: "$1:$2" %
-              [dur.toParts[Hours].int.intToStr(2), dur.toParts[Minutes].int.intToStr(2)])
+              [dur.inHours.int.intToStr(2), dur.toParts[Minutes].int.intToStr(2)])
             row.add htd(content: node["code"].getStr)
             row.add htd(content: content)
             table.tbody.add row
@@ -132,7 +132,7 @@ proc makeCalcTable*(fromDay, toDay: DateTime): string =
     row.add htd()
     row.add htd(content: "合計")
     row.add htd(content: "$1:$2" %
-      [sum.toParts[Hours].int.intToStr(2), sum.toParts[Minutes].int.intToStr(2)])
+      [sum.inHours.int.intToStr(2), sum.toParts[Minutes].int.intToStr(2)])
     row.add htd()
     row.add htd()
     table.tbody.add row
