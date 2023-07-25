@@ -39,6 +39,6 @@ when isMainModule:
   if not ConfFile.fileExists:
     makeConfFile()
     quit()
-  openDb().createTables
+  createTables()
   let port = getPort()
   startHttpServer(port)
