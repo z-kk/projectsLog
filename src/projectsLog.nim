@@ -1,5 +1,5 @@
 import
-  os, json,
+  std / [os, json],
   projectsLogpkg / [httpServer, consts, dbtables]
 
 proc getPort(): int =

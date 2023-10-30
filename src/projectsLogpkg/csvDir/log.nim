@@ -1,7 +1,7 @@
 import
-  os, strutils, strformat, parsecsv,
-  times,
-  db_sqlite
+  std / [os, strutils, strformat, parsecsv],
+  std / times,
+  db_connector / db_sqlite
 type
   LogCol* {.pure.} = enum
     id, project_id, project_code, day, category, content, from_time, to_time, updated_at

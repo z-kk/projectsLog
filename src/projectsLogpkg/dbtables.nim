@@ -1,6 +1,6 @@
 import
-  db_sqlite,
   std / os,
+  db_connector / db_sqlite,
   csvDir / [log]
 export
   db_sqlite,
