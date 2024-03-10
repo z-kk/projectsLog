@@ -59,7 +59,7 @@ router rt:
       cat = data["category"].body
     resp getContents(name, cat).join("\n")
 
-proc startHttpServer*(port = 0) =
+proc startWebServer*(port = 0) =
   var jest =
     if port < 1:
       rt.initJester

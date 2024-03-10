@@ -1,6 +1,6 @@
 import
   std / [os, json],
-  projectsLogpkg / [httpServer, consts, dbtables]
+  projectsLogpkg / [webserver, consts, dbtables]
 
 proc getPort(): int =
   ## サーバを起動するポートを取得
@@ -41,4 +41,4 @@ when isMainModule:
     quit()
   createTables()
   let port = getPort()
-  startHttpServer(port)
+  startWebServer(port)
