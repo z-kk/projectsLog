@@ -1,5 +1,5 @@
 import
-  os, json,
+  std / [os, json],
   projectsLogpkg / [httpServer, consts, dbtables]
 
 proc getPort(): int =
@@ -39,6 +39,6 @@ when isMainModule:
   if not ConfFile.fileExists:
     makeConfFile()
     quit()
-  openDb().createTables
+  createTables()
   let port = getPort()
   startHttpServer(port)

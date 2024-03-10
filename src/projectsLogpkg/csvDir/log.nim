@@ -1,7 +1,7 @@
 import
-  os, strutils, strformat, parsecsv,
-  times,
-  db_sqlite
+  std / [os, strutils, strformat, parsecsv],
+  std / times,
+  db_connector / db_sqlite
 type
   LogCol* {.pure.} = enum
     id, project_id, project_code, day, category, content, from_time, to_time, updated_at
@@ -67,27 +67,51 @@ proc createLogTable*(db: DbConn) =
     updated_at DATETIME default '9999-12-31' not null
   )""".sql
   db.exec(sql)
-proc insertLogTable*(db: DbConn, rowData: LogTable) =
+proc tryInsertLogTable*(db: DbConn, rowData: LogTable): int64 =
+  var vals: seq[string]
   var sql = "insert into log("
   if rowData.id > 0:
     sql &= "id,"
-  sql &= """project_id,project_code,day,category,content,from_time,to_time,updated_at
-    ) values ("""
+  vals.add $rowData.project_id
+  sql &= "project_id,"
+  vals.add rowData.project_code
+  sql &= "project_code,"
+  if rowData.day != DateTime():
+    vals.add rowData.day.format("yyyy-MM-dd HH:mm:ss")
+    sql &= "day,"
+  vals.add rowData.category
+  sql &= "category,"
+  vals.add rowData.content
+  sql &= "content,"
+  if rowData.from_time != DateTime():
+    vals.add rowData.from_time.format("yyyy-MM-dd HH:mm:ss")
+    sql &= "from_time,"
+  if rowData.to_time != DateTime():
+    vals.add rowData.to_time.format("yyyy-MM-dd HH:mm:ss")
+    sql &= "to_time,"
+  if rowData.updated_at != DateTime():
+    vals.add rowData.updated_at.format("yyyy-MM-dd HH:mm:ss")
+    sql &= "updated_at,"
+  sql[^1] = ')'
+  sql &= " values ("
   if rowData.id > 0:
     sql &= &"{rowData.id},"
-  sql &= &"{rowData.project_id},'{rowData.project_code}',datetime('" & rowData.day.format("yyyy-MM-dd HH:mm:ss") & &"'),'{rowData.category}','{rowData.content}',datetime('" & rowData.from_time.format("yyyy-MM-dd HH:mm:ss") & &"'),datetime('" & rowData.to_time.format("yyyy-MM-dd HH:mm:ss") & &"'),datetime('" & rowData.updated_at.format("yyyy-MM-dd HH:mm:ss") & &"')"
-  sql &= ")"
-  db.exec(sql.sql)
+  sql &= "?,".repeat(vals.len)
+  sql[^1] = ')'
+  return db.tryInsertID(sql.sql, vals)
+proc insertLogTable*(db: DbConn, rowData: LogTable) =
+  let res = tryInsertLogTable(db, rowData)
+  if res < 0: db.dbError
 proc insertLogTable*(db: DbConn, rowDataSeq: seq[LogTable]) =
   for rowData in rowDataSeq:
     db.insertLogTable(rowData)
-proc selectLogTable*(db: DbConn, whereStr = "", orderStr = ""): seq[LogTable] =
+proc selectLogTable*(db: DbConn, whereStr = "", orderBy: seq[string], whereVals: varargs[string, `$`]): seq[LogTable] =
   var sql = "select * from log"
   if whereStr != "":
     sql &= " where " & whereStr
-  if orderStr != "":
-    sql &= " order by " & orderStr
-  let rows = db.getAllRows(sql.sql)
+  if orderBy.len > 0:
+    sql &= " order by " & orderBy.join(",")
+  let rows = db.getAllRows(sql.sql, whereVals)
   for row in rows:
     var res: LogTable
     res.primKey = row[LogCol.id.ord].parseInt
@@ -101,28 +125,40 @@ proc selectLogTable*(db: DbConn, whereStr = "", orderStr = ""): seq[LogTable] =
     res.setDataLogTable("to_time", row[LogCol.to_time.ord])
     res.setDataLogTable("updated_at", row[LogCol.updated_at.ord])
     result.add(res)
+proc selectLogTable*(db: DbConn, whereStr = "", whereVals: varargs[string, `$`]): seq[LogTable] =
+  selectLogTable(db, whereStr, @[], whereVals)
 proc updateLogTable*(db: DbConn, rowData: LogTable) =
   if rowData.primKey < 1: return
+  var vals: seq[string]
   var sql = "update log set "
-  sql &= &" project_id = {rowData.project_id}"
-  sql &= &",project_code = '{rowData.project_code}'"
+  vals.add $rowData.project_id
+  sql &= "project_id = ?,"
+  vals.add rowData.project_code
+  sql &= "project_code = ?,"
   if rowData.day != DateTime():
-    sql &= &",day = datetime('" & rowData.day.format("yyyy-MM-dd HH:mm:ss") & &"')"
-  sql &= &",category = '{rowData.category}'"
-  sql &= &",content = '{rowData.content}'"
+    vals.add rowData.day.format("yyyy-MM-dd HH:mm:ss")
+    sql &= "day = ?,"
+  vals.add rowData.category
+  sql &= "category = ?,"
+  vals.add rowData.content
+  sql &= "content = ?,"
   if rowData.from_time != DateTime():
-    sql &= &",from_time = datetime('" & rowData.from_time.format("yyyy-MM-dd HH:mm:ss") & &"')"
+    vals.add rowData.from_time.format("yyyy-MM-dd HH:mm:ss")
+    sql &= "from_time = ?,"
   if rowData.to_time != DateTime():
-    sql &= &",to_time = datetime('" & rowData.to_time.format("yyyy-MM-dd HH:mm:ss") & &"')"
+    vals.add rowData.to_time.format("yyyy-MM-dd HH:mm:ss")
+    sql &= "to_time = ?,"
   if rowData.updated_at != DateTime():
-    sql &= &",updated_at = datetime('" & rowData.updated_at.format("yyyy-MM-dd HH:mm:ss") & &"')"
+    vals.add rowData.updated_at.format("yyyy-MM-dd HH:mm:ss")
+    sql &= "updated_at = ?,"
+  sql[^1] = ' '
 
-  sql &= &" where id = {rowData.primKey}"
-  db.exec(sql.sql)
+  sql &= &"where id = {rowData.primKey}"
+  db.exec(sql.sql, vals)
 proc updateLogTable*(db: DbConn, rowDataSeq: seq[LogTable]) =
   for rowData in rowDataSeq:
     db.updateLogTable(rowData)
-proc dumpLogTable*(db: DbConn, dirName = "csv") =
+proc dumpLogTable*(db: DbConn, dirName = ".") =
   dirName.createDir
   let
     fileName = dirName / "log.csv"
@@ -170,7 +206,7 @@ proc insertCsvLogTable*(db: DbConn, fileName: string) =
     data.setDataLogTable("to_time", parser.rowEntry("to_time"))
     data.setDataLogTable("updated_at", parser.rowEntry("updated_at"))
     db.insertLogTable(data)
-proc restoreLogTable*(db: DbConn, dirName = "csv") =
+proc restoreLogTable*(db: DbConn, dirName = ".") =
   let fileName = dirName / "log.csv"
   db.exec("delete from log".sql)
   db.insertCsvLogTable(fileName)

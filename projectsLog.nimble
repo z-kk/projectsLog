@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.3.0"
+version       = "0.4.0"
 author        = "z-kk"
 description   = "Make Projects log data"
 license       = "MIT"
@@ -12,7 +12,8 @@ binDir        = "bin"
 
 # Dependencies
 
-requires "nim >= 1.6.0"
+requires "nim >= 2.0.0"
+requires "db_connector"
 requires "jester"
 requires "htmlgenerator"
 
@@ -27,5 +28,4 @@ import os
 task ex, "run without build":
   withDir binDir:
     exec "if [ ! -e public ]; then ln -s ../src/html public; fi"
-    for b in bin:
-      exec "." / b
+    exec "." / bin[0]
