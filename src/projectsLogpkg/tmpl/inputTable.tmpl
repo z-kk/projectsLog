@@ -1,0 +1,52 @@
+#? stdtmpl | standard
+#proc inputRow(info: projInfo, idx: int, conf: JsonNode): string =
+#  result = ""
+<tr>
+    <td>
+        <select class="proj" name="${idx.projStr}">
+            #for key, _ in conf["projects"]:
+            <option ${if key == info.name: "selected" else: ""}>${key}</option>
+            #end for
+        </select>
+    </td>
+    <td>
+        <select class="cat" name="${idx.catStr}">
+            #for cat in conf["categories"]:
+            <option ${if cat.getStr == info.category: "selected" else: ""}>${cat.getStr}</option>
+            #end for
+        </select>
+    </td>
+    <td>
+        <input class="content" name="${idx.contentStr}" value="${info.content}"/>
+    </td>
+    <td>
+        <input type="time" class="fromTime" name="${idx.fromStr}" value="${if info.fromTime != DateTime(): info.fromTime.format("HH:mm") else: ""}"/>
+    </td>
+    <td>
+        <input type="time" class="toTime" name="${idx.toStr}" value="${if info.toTime != DateTime(): info.toTime.format("HH:mm") else: ""}"/>
+    </td>
+</tr>
+#end proc
+
+#proc inputTable(log: seq[projInfo], conf: JsonNode): string =
+#  let today = now()
+#  var idx = 0
+#  result = ""
+<table>
+    <thead>
+        <tr>
+            <th>Proj.</th>
+            <th>分類</th>
+            <th>内容</th>
+            <th>開始</th>
+            <th>終了</th>
+        </tr>
+    </thead>
+    <tbody>
+        #for info in log:
+        ${info.inputRow(idx, conf)}
+        #idx.inc
+        #end for
+        ${projInfo().inputRow(idx, conf)}
+    </tbody>
+</table>

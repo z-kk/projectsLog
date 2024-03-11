@@ -1,0 +1,47 @@
+#? stdtmpl | standard
+#type
+#  calcData = Table[string, Table[string, Table[string, Duration]]]
+#end type
+
+#proc calcTable(data: calcData, conf: JsonNode): string =
+#  var sum: Duration
+#  result = ""
+<table>
+    <thead>
+        <tr>
+            <th>Proj.</th>
+            <th>分類</th>
+            <th>時間</th>
+            <th>Code</th>
+            <th>内容</th>
+        </tr>
+    </thead>
+    <tbody>
+        #for key, node in conf["projects"]:
+            #if key in data:
+                #for category in conf["categories"]:
+                    #let ctg = category.getStr
+                    #if ctg in data[key]:
+                        #for content, dur in data[key][ctg]:
+                            #sum += dur
+        <tr>
+            <td>${key}</td>
+            <td>${ctg}</td>
+            <td>${dur.inHours.int.intToStr(2)}:${dur.toParts[Minutes].int.intToStr(2)}</td>
+            <td>${node["code"].getStr}</td>
+            <td>${content}</td>
+        </tr>
+                        #end for
+                    #end if
+                #end for
+            #end if
+        #end for
+        <tr>
+            <td></td>
+            <td>合計</td>
+            <td>${sum.inHours.int.intToStr(2)}:${sum.toParts[Minutes].int.intToStr(2)}</td>
+            <td></td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>

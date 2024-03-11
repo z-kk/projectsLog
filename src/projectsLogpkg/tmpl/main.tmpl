@@ -1,0 +1,28 @@
+#? stdtmpl | standard
+#proc mainPageBody(inputTable, calcTable: seq[string]): string =
+#  let today = now()
+#  result = ""
+<form>
+    <label>対象日: 
+        <input type="date" id="day" name="day" value="${today.format(DateFormat)}"/>
+    </label>
+    <div id="inputtable" class="table">
+        ${inputTable.join("\n"  & ' '.repeat(8))}
+    </div>
+
+    <div id="lay"></div>
+    <div id="pop">
+        <div>
+            <label>期間: 
+                <input type="date" id="from_day" name="from_day" value="${today.format(DateFormat)}"/>
+            </label>
+            <span>～</span>
+            <input type="date" id="to_day" name="to_day" value="${today.format(DateFormat)}"/>
+            <button type="button" id="updatebtn">更新</button>
+        </div>
+        <div id="calctable" class="table">
+            ${calcTable.join("\n" & ' '.repeat(12))}
+        </div>
+    </div>
+    <button type="button" id="okbtn">OK</button>
+</form>
