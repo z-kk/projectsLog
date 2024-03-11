@@ -1,11 +1,14 @@
 import
-  std / [os, strutils, sequtils, times, json],
+  std / [strutils, sequtils, times, json],
   jester, htmlgenerator,
   dataUtils, taskdata, utils, consts
 
 type
   Page = enum
     pgMain = "/"
+
+const
+  AppTitle = "ProjLog"
 
 proc makeInputTable(day: DateTime): string =
   ## ログ入力テーブル
@@ -67,6 +70,7 @@ proc makePage(req: Request, page: Page): string =
   include "tmpl/base.tmpl"
 
   var param = req.newParams
+  param.title = AppTitle
 
   case page
   of pgMain:
@@ -114,6 +118,59 @@ proc updateData(req: Request): JsonNode =
   except:
     result["err"] = %getCurrentExceptionMsg()
 
+proc updateTask(req: Request): JsonNode =
+  ## Update task data.
+  result = %*{
+    "result": false,
+    "err": "unknown error",
+  }
+
+  let json = req.body.parseJson
+  var data: TaskData
+  data.uuid = json["uuid"].getStr
+  data.proj = json["proj"].getStr
+  data.title = json["title"].getStr
+  case TaskStatus(json["status"].getStr.parseInt)
+  of Pending: discard
+  of Doing: data.start
+  of Waiting: data.wait(json["for"].getStr.parse(DateFormat))
+  of Hide: data.hide(json["for"].getStr.parse(DateFormat))
+  of Done: data.done
+  if "due" in json:
+    data.due = json["due"].getStr.parse(DateFormat)
+
+  var target = @[data]
+  if "parent" in json:
+    var parent = getTaskData()[json["parent"].getStr]
+    if data.uuid notin parent.children:
+      parent.children.add data.uuid
+    target.add parent
+
+  target.commit
+  return %*{
+    "result": true,
+    "data": getTaskData().toJson,
+  }
+
+proc deleteTask(req: Request): JsonNode =
+  ## Delete task data.
+  result = %*{
+    "result": false,
+    "err": "unknown error",
+  }
+
+  let
+    data = getTaskData()
+    uuid = req.body.parseJson["uuid"].getStr
+  if uuid in data:
+    data[uuid].delete
+    return %*{
+      "result": true,
+      "data": getTaskData().toJson,
+    }
+  else:
+    result["err"] = %"uuid not in task"
+
 router rt:
   get "/":
     resp request.makePage(pgMain)
@@ -121,6 +178,10 @@ router rt:
     resp getTaskData().toJson
   post "/api/update":
     resp request.updateData
+  post "/api/updatetask":
+    resp request.updateTask
+  post "/api/deletetask":
+    resp request.deleteTask
   post "/api/getinputtable":
     let data = request.formData
     resp data["day"].body.parse(DateFormat).makeInputTable
