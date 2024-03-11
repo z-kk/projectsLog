@@ -29,6 +29,7 @@
         </footer>
         #end if
         <script>const appName = "${appName}";</script>
+        <script>const taskStatus = [${TaskStatus.mapIt("\"$1\"" % [$it]).join(",")}];</script>
         <script src="${appName}/functions.js"></script>
         ${param.script.join("\n" & ' '.repeat(8))}
     </body>

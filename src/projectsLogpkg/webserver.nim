@@ -1,7 +1,7 @@
 import
-  std / [os, strutils, times, json],
+  std / [os, strutils, sequtils, times, json],
   jester, htmlgenerator,
-  dataUtils, utils, consts
+  dataUtils, taskdata, utils, consts
 
 type
   Page = enum
@@ -73,6 +73,7 @@ proc makePage(req: Request, page: Page): string =
     param.lnk.add req.newLink("popup.css").toHtml
     param.body = mainPage()
     param.script.add req.newScript("popup.js").toHtml
+    param.script.add req.newScript("taskdata.js").toHtml
     param.script.add req.newScript("main.js").toHtml
 
   return param.basePage
@@ -116,11 +117,8 @@ proc updateData(req: Request): JsonNode =
 router rt:
   get "/":
     resp request.makePage(pgMain)
-  get "/api/mermaid":
-    var res = ""
-    if GanttFile.fileExists:
-      res = GanttFile.readFile
-    resp res
+  get "/api/taskdata":
+    resp getTaskData().toJson
   post "/api/update":
     resp request.updateData
   post "/api/getinputtable":
