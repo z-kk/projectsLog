@@ -256,6 +256,7 @@ function setMermaid(data) {
     const today = new Date();
     const d = select(".mermaid");
     delete d.dataset.processed;
+    let doingCnt = 0;
     let mmd = `gantt
         dateFormat YYYY-MM-DD
         axisFormat %m/%d
@@ -270,6 +271,11 @@ function setMermaid(data) {
         }
         mmd += `    section ${proj.proj}\n`;
         for (title of filterStatus(proj.data, false)) {
+            let gstatus = ""
+            if (taskStatus[title.status] == "Doing") {
+                gstatus = "active";
+                doingCnt++;
+            }
             let from = getDateString(today);
             if (isWaitOrHide(title.status) && title.for > from) {
                 from = title.for;
@@ -277,10 +283,22 @@ function setMermaid(data) {
             let due = new Date(today.getTime());
             if (title.due) {
                 due = new Date(title.due);
+                if (due < today) {
+                    from = getDateString(due);
+                    gstatus = "milestone";
+                }
             }
             due.setDate(due.getDate() + 1);
-            mmd += `        ${title.title}: ${title.uuid},${from},${getDateString(due)}\n`;
+            if (gstatus) {
+                gstatus += ",";
+            }
+            mmd += `        ${title.title}: ${gstatus}${title.uuid},${from},${getDateString(due)}\n`;
             for (child of filterStatus(title.children, false)) {
+                gstatus = "";
+                if (taskStatus[child.status] == "Doing") {
+                    gstatus = "active";
+                    doingCnt++;
+                }
                 from = getDateString(today);
                 if (isWaitOrHide(child.status) && child.for > from) {
                     from = child.for;
@@ -288,9 +306,16 @@ function setMermaid(data) {
                 due = new Date(today.getTime());
                 if (child.due) {
                     due = new Date(child.due);
+                    if (due < today) {
+                        from = getDateString(due);
+                        gstatus = "milestone";
+                    }
                 }
                 due.setDate(due.getDate() + 1);
-                mmd += `        ${child.title}: ${child.uuid},${from},${getDateString(due)}\n`;
+                if (gstatus) {
+                    gstatus += ",";
+                }
+                mmd += `        ${child.title}: ${gstatus}${child.uuid},${from},${getDateString(due)}\n`;
             }
         }
     }
@@ -299,7 +324,15 @@ function setMermaid(data) {
     const mermaidUrl = "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
     import(mermaidUrl).then(module => {
         if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-            module.default.init({theme: "dark", themeCSS: ".exclude-range {fill: var(--nc-bg-3)}; .task {fill: var(--nc-ac-1)}"});
+            let themeCSS = ".exclude-range {fill: var(--nc-bg-3)}";
+            themeCSS += " .task {fill: var(--nc-ac-1)}";
+            for (i = 0; i < doingCnt; i++) {
+                themeCSS += ` .active${i} {fill: var(--nc-lk-2)}`;
+            }
+            module.default.init({
+                theme: "dark",
+                themeCSS: themeCSS,
+            });
         } else {
             module.default.init();
         }
