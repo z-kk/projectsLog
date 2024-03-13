@@ -256,7 +256,6 @@ function setMermaid(data) {
     const today = new Date();
     const d = select(".mermaid");
     delete d.dataset.processed;
-    let doingCnt = 0;
     let mmd = `gantt
         dateFormat YYYY-MM-DD
         axisFormat %m/%d
@@ -274,7 +273,6 @@ function setMermaid(data) {
             let gstatus = ""
             if (taskStatus[title.status] == "Doing") {
                 gstatus = "active";
-                doingCnt++;
             }
             let from = getDateString(today);
             if (isWaitOrHide(title.status) && title.for > from) {
@@ -297,7 +295,6 @@ function setMermaid(data) {
                 gstatus = "";
                 if (taskStatus[child.status] == "Doing") {
                     gstatus = "active";
-                    doingCnt++;
                 }
                 from = getDateString(today);
                 if (isWaitOrHide(child.status) && child.for > from) {
@@ -326,7 +323,7 @@ function setMermaid(data) {
         if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
             let themeCSS = ".exclude-range {fill: var(--nc-bg-3)}";
             themeCSS += " .task {fill: var(--nc-ac-1)}";
-            for (i = 0; i < doingCnt; i++) {
+            for (i = 0; i < 4; i++) {
                 themeCSS += ` .active${i} {fill: var(--nc-lk-2)}`;
             }
             module.default.init({
