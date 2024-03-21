@@ -66,7 +66,7 @@ proc getContents*(name, category: string, maxLen = 10): seq[string] =
   var
     day = now() - 1.months
     whereStr = whereStrFmt % [day.format(DateFormat)]
-    logList = db.selectLogTable(whereStr, orderStr)
+    logList = db.selectLogTable(whereStr, @[orderStr])
 
   while result.len < maxLen and day > now() - 1.years:
     for log in logList:
@@ -75,4 +75,4 @@ proc getContents*(name, category: string, maxLen = 10): seq[string] =
 
     day -= 1.months
     whereStr = whereStrFmt % [day.format(DateFormat)]
-    logList = db.selectLogTable(whereStr, orderStr)
+    logList = db.selectLogTable(whereStr, @[orderStr])
