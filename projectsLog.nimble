@@ -28,5 +28,5 @@ task r, "build and run":
 import os
 task ex, "run without build":
   withDir binDir:
-    exec "if [ ! -e public ]; then ln -s ../src/html public; fi"
+    exec "if [ ! -e public ]; then ln -s ../src/static public; fi"
     exec "." / bin[0]
