@@ -36,7 +36,7 @@ proc makeConfFile() =
   echo "設定ファイル[conf.json]を記入してください"
 
 when isMainModule:
-  if not ConfFile.fileExists:
+  if not ConfFile.fileExists or ConfFile.readFile == "":
     makeConfFile()
     quit()
   createTables()
