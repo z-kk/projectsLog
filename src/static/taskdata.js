@@ -1,5 +1,3 @@
-const holiday = [];
-
 function isWaitOrHide(val) {
     const sts = taskStatus[val];
     return (sts == "Waiting" || sts == "Hide");
@@ -338,19 +336,6 @@ function setMermaid(data) {
 }
 
 self.window.addEventListener('load', function() {
-    fetch("https://holidays-jp.github.io/api/v1/date.json").then(response => {
-        if (!response.ok) {
-            throw new Error("response error");
-        }
-        return response.json();
-    }).then(data => {
-        for (key in data) {
-            holiday.push(key);
-        }
-    }).catch(err => {
-        alert(err);
-    });
-
     fetch(appName + "/api/taskdata", {
         method: "GET",
     }).then(response => {

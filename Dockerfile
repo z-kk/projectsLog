@@ -9,13 +9,14 @@ RUN nimble install jester
 
 ADD . /build
 WORKDIR /build
-RUN nimble install
+RUN nimble install -d:ssl
 
 # prod stage
 FROM debian:stable-slim AS prod
 
 RUN apt-get update && \
     apt-get install -y libsqlite3-0 && \
+    apt-get install -y ca-certificates libssl3 && \
     apt-get install -y taskwarrior && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 

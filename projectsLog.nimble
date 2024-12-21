@@ -22,7 +22,7 @@ requires "htmlgenerator"
 # Tasks
 
 task r, "build and run":
-  exec "nimble build"
+  exec "nimble build -d:ssl"
   exec "nimble ex"
 
 import os

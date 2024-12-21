@@ -1,5 +1,7 @@
 import
-  jester, htmlgenerator
+  std / [json, net, httpclient],
+  jester, htmlgenerator,
+  consts
 
 type
   BasePageParams* = object
@@ -24,3 +26,16 @@ proc newLink*(req: Request, path = ""): hlink =
 
 proc newScript*(req: Request, path = ""): hscript =
   newScript(req.uri(path))
+
+proc getHoliday*(): seq[string] =
+  ## Get Japanese holiday and holiday in config.json
+  var client = newHttpClient(sslContext=newContext(verifyMode=CVerifyPeer))
+  try:
+    let j = client.getContent("https://holidays-jp.github.io/api/v1/date.json").parseJson
+    for key, _ in j:
+      result.add key
+  finally:
+    client.close
+  let conf = ConfFile.readFile.parseJson
+  for h in conf["holiday"]:
+    result.add h.getStr
