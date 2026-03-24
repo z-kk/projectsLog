@@ -1,0 +1,37 @@
+@charset "utf-8";
+/* CSS Document */
+
+.table {
+    max-height: 70vh;
+    max-width: calc(100% - 24px);
+    margin-bottom: .5rem;
+    padding-right: 18px;
+    overflow: auto;
+}
+
+.table table {
+    margin-bottom: 0;
+    border-collapse: unset;
+    border-spacing: 0;
+    white-space: nowrap;
+}
+
+.table thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.table thead:not(:first-child) th,
+.table thead:not(:first-child) td,
+.table tbody:not(:first-child) th,
+.table tbody:not(:first-child) td,
+.table tr:not(:first-child) th,
+.table tr:not(:first-child) td {
+    border-top: none;
+}
+
+.table th:not(:first-child),
+.table td:not(:first-child) {
+    border-left: none;
+}

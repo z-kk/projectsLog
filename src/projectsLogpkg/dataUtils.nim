@@ -10,9 +10,8 @@ type
     fromTime*: DateTime
     toTime*: DateTime
 
-proc updateLog*(infoList: seq[projInfo]): JsonNode =
+proc updateLog*(infoList: seq[projInfo]) =
   ## ログデータを登録
-  result = %*{ "result": true }
   if infoList.len == 0:
     return
   let
@@ -31,10 +30,7 @@ proc updateLog*(infoList: seq[projInfo]): JsonNode =
     log.from_time = info.fromTime
     log.to_time = info.toTime
     log.updated_at = now()
-    try:
-      db.insertLogTable(log)
-    except:
-      return %*{ "result": false, "exception": getCurrentExceptionMsg() }
+    db.insertLogTable(log)
 
 proc getLog*(fromDay, toDay: DateTime): seq[projInfo] =
   ## ログデータを取得

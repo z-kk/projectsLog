@@ -1,0 +1,18 @@
+services:
+  nimsv:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    ports:
+      - 5000:5000
+    volumes:
+      - ./data:/work/data
+      - ./config.json:/work/config.json
+      - $HOME/.config/task:/root/.config/task
+      - $TASKDATA:/task
+    environment:
+      - TASKRC=/root/.config/task/taskrc
+      - TASKDATA=/task
+    working_dir: /work
+    command: ./projectsLog
