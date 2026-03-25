@@ -1,6 +1,6 @@
 import
   std / [os, json],
-  projectsLogpkg / [webserver, consts, dbtables]
+  projectsLogpkg / [neelapp, consts, dbtables]
 
 proc makeConfFile() =
   ## 設定ファイルを作成
@@ -36,4 +36,5 @@ when isMainModule:
     echo "設定ファイル[conf.json]を記入してください"
     quit()
   createTables()
-  startWebServer()
+  let isApp = when defined(windows): true else: false
+  startNeelApp(siz = [800, 600], isApp = isApp)

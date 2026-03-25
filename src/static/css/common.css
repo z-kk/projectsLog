@@ -1,0 +1,21 @@
+@charset "utf-8";
+/* CSS Document */
+
+.close-btn {
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--nc-tx-2);
+    background: var(--nc-bg-2);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    margin-left: auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    background: var(--nc-bg-3);
+}

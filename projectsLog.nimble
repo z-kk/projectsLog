@@ -14,19 +14,18 @@ binDir        = "bin"
 
 requires "nim >= 2.0.0"
 requires "db_connector"
-requires "uuid4"
-requires "jester"
+requires "neel"
 requires "htmlgenerator"
 
 
 # Tasks
 
 task r, "build and run":
-  exec "nimble build -d:ssl"
+  exec "nimble build"
   exec "nimble ex"
 
 import os
 task ex, "run without build":
   withDir binDir:
-    exec "if [ ! -e public ]; then ln -s ../src/static public; fi"
+    exec "if [ ! -e assets ]; then ln -s ../src/static assets; fi"
     exec "." / bin[0]
