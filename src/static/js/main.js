@@ -15,10 +15,22 @@ function update() {
     neel.callNim("updateCalcTable", select("#from_day").value, select("#to_day").value);
 }
 
-function setBlurEvent() {
+function setEvent() {
     let rows = selectAll("#inputtable tbody tr");
     let tipt = rows[rows.length - 1].querySelector(".toTime")
     tipt.addEventListener("blur", addRow);
+
+    rows.forEach(row => {
+        let ipt = row.querySelector(".content");
+        ipt.setAttribute("list", select("datalist").id);
+        ipt.addEventListener("focus", function(evt) {
+            let row = evt.target.parentElement.parentElement;
+            let data = {};
+            data["proj"] = row.querySelector(".proj").value;
+            data["category"] = row.querySelector(".cat").value;
+            neel.callNim("setDataList", data);
+        });
+    });
 }
 
 function addRow(evt) {

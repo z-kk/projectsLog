@@ -1,10 +1,15 @@
 import
-  std / [strutils, tables, times, json],
+  std / [strutils, tables, times, json, htmlgen],
   neel,
   dataUtils, consts
 
 export
   neel
+
+proc makeDataList(name, cat: string): string =
+  ## 入力DataList
+  for content in getContents(name, cat):
+    result.add option(value = content)
 
 proc makeInputTable(day: DateTime): string =
   ## ログ入力テーブル
@@ -81,7 +86,13 @@ template startNeelApp*(dir = "assets", port = 5000, pos = [500, 150], siz = [600
   exposeProcs:
     proc initPage() =
       callJs "setNode", "main", mainPage()
-      callJs "setBlurEvent"
+      callJs "setEvent"
+
+    proc setDataList(data: JsonNode) =
+      let
+        name = data["proj"].getStr
+        cat = data["category"].getStr
+      callJs "setNode", "datalist", makeDataList(name, cat)
 
     proc updateLog(data: JsonNode) =
       try:
