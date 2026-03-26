@@ -3,27 +3,27 @@
 #  result = ""
 <tr>
     <td>
-        <select class="proj" name="${idx.projStr}">
+        <select class="proj">
             #for key, _ in conf["projects"]:
             <option ${if key == info.name: "selected" else: ""}>${key}</option>
             #end for
         </select>
     </td>
     <td>
-        <select class="cat" name="${idx.catStr}">
+        <select class="cat">
             #for cat in conf["categories"]:
             <option ${if cat.getStr == info.category: "selected" else: ""}>${cat.getStr}</option>
             #end for
         </select>
     </td>
     <td>
-        <input class="content" name="${idx.contentStr}" value="${info.content}"/>
+        <input class="content" value="${info.content}"/>
     </td>
     <td>
-        <input type="time" class="fromTime" name="${idx.fromStr}" value="${if info.fromTime != DateTime(): info.fromTime.format("HH:mm") else: ""}"/>
+        <input type="time" class="fromTime" value="${if info.fromTime != DateTime(): info.fromTime.format("HH:mm") else: ""}"/>
     </td>
     <td>
-        <input type="time" class="toTime" name="${idx.toStr}" value="${if info.toTime != DateTime(): info.toTime.format("HH:mm") else: ""}"/>
+        <input type="time" class="toTime" value="${if info.toTime != DateTime(): info.toTime.format("HH:mm") else: ""}"/>
     </td>
 </tr>
 #end proc
