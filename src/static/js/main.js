@@ -1,6 +1,8 @@
 function update() {
+    let day = select("#day").value;
+    select("#from_day").value = day;
     let data = {};
-    data["day"] = select("#day").value;
+    data["day"] = day;
     data["rows"] = [];
     for (row of selectAll("#inputtable tbody tr")) {
         let rowData = {};
@@ -12,12 +14,26 @@ function update() {
         data["rows"].push(rowData);
     }
     neel.callNim("updateLog", data);
+    setCalcTable();
+}
+
+function setCalcTable() {
     neel.callNim("updateCalcTable", select("#from_day").value, select("#to_day").value);
 }
 
-function setEvent() {
+function setEvent(isInit) {
+    if (isInit) {
+        select("#day").addEventListener("change", function(evt) {
+            let day = evt.target.value;
+            if (day == "") {
+                return;
+            }
+            neel.callNim("updateInputTable", day);
+        });
+    }
+
     let rows = selectAll("#inputtable tbody tr");
-    let tipt = rows[rows.length - 1].querySelector(".toTime")
+    let tipt = rows[rows.length - 1].querySelector(".toTime");
     tipt.addEventListener("blur", addRow);
 
     rows.forEach(row => {

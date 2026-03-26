@@ -86,7 +86,7 @@ template startNeelApp*(dir = "assets", port = 5000, pos = [500, 150], siz = [600
   exposeProcs:
     proc initPage() =
       callJs "setNode", "main", mainPage()
-      callJs "setEvent"
+      callJs "setEvent", true
 
     proc setDataList(data: JsonNode) =
       let
@@ -100,6 +100,10 @@ template startNeelApp*(dir = "assets", port = 5000, pos = [500, 150], siz = [600
         callJs "showDialog"
       except:
         callJs "showAlert", getCurrentExceptionMsg()
+
+    proc updateInputTable(day: string) =
+      callJs "setNode", "#inputtable", makeInputTable(day.parse(DateFormat))
+      callJs "setEvent", false
 
     proc updateCalcTable(fDay: string, tDay: string) =
       callJs "setNode", "#calctable", makeCalcTable(fDay.parse(DateFormat), tDay.parse(DateFormat))
