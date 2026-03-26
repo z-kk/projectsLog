@@ -41,7 +41,7 @@ function updateTask() {
     if (status) {
         node.status = status.value;
         if (isWaitOrHide(node.status)) {
-            const dt = tr.querySelector(".for");
+            const dt = tr.querySelector("input.for");
             if (dt && dt.value) {
                 node.for = dt.value;
             } else {
