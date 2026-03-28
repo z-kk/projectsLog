@@ -37,15 +37,7 @@ function setEvent(isInit) {
     tipt.addEventListener("blur", addRow);
 
     rows.forEach(row => {
-        let ipt = row.querySelector(".content");
-        ipt.setAttribute("list", select("datalist").id);
-        ipt.addEventListener("focus", function(evt) {
-            let row = evt.target.parentElement.parentElement;
-            let data = {};
-            data["proj"] = row.querySelector(".proj").value;
-            data["category"] = row.querySelector(".cat").value;
-            neel.callNim("setDataList", data);
-        });
+        setFocusEvent(row);
     });
 }
 
@@ -60,6 +52,7 @@ function addRow(evt) {
     if (row.rowIndex == tb.children.length) {
         let r = row.cloneNode(true);
         r.querySelector(".content").value = "";
+        setFocusEvent(r);
         r.querySelector(".fromTime").value = val;
         r.querySelector(".toTime").value = "";
         r.querySelector(".toTime").addEventListener("blur", addRow);
@@ -67,6 +60,18 @@ function addRow(evt) {
         r.querySelector(".proj").focus();
         ipt.removeEventListener("blur", addRow);
     }
+}
+
+function setFocusEvent(row) {
+    let ipt = row.querySelector(".content");
+    ipt.setAttribute("list", select("datalist").id);
+    ipt.addEventListener("focus", function(evt) {
+        let row = evt.target.parentElement.parentElement;
+        let data = {};
+        data["proj"] = row.querySelector(".proj").value;
+        data["category"] = row.querySelector(".cat").value;
+        neel.callNim("setDataList", data);
+    });
 }
 
 function showDialog() {
