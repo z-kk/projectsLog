@@ -97,6 +97,7 @@ template startNeelApp*(dir = "assets", port = 5000, pos = [500, 150], siz = [600
     proc updateLog(data: JsonNode) =
       try:
         updateData(data)
+        callJs "setCalcTable"
         callJs "showDialog"
       except:
         callJs "showAlert", getCurrentExceptionMsg()

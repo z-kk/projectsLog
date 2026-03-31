@@ -14,7 +14,6 @@ function update() {
         data["rows"].push(rowData);
     }
     neel.callNim("updateLog", data);
-    setCalcTable();
 }
 
 function setCalcTable() {
