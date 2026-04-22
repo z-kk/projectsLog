@@ -1,0 +1,40 @@
+@charset "utf-8";
+/* CSS Document */
+
+body {
+    max-width: unset;
+    overflow-x: unset;
+}
+
+dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--nc-tx-2);
+    background: var(--nc-bg-1);
+    border: 2px solid var(--nc-ac-1);
+    border-radius: 10px;
+    padding: 12px;
+}
+
+dialog::backdrop {
+    backdrop-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+fieldset {
+    padding-block: .5rem;
+}
+
+legend {
+    padding: 0 .5rem;
+}
+
+table {
+    textarea,
+    select,
+    input {
+        margin-bottom: 0;
+    }
+}

@@ -14,15 +14,14 @@ binDir        = "bin"
 
 requires "nim >= 2.0.0"
 requires "db_connector"
-requires "uuid4"
-requires "jester"
+requires "webui"
 requires "htmlgenerator"
 
 
 # Tasks
 
 task r, "build and run":
-  exec "nimble build -d:ssl"
+  exec "nimble build"
   exec "nimble ex"
 
 import os
